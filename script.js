@@ -3,15 +3,18 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhGKdL3Um0WTH
 
 const searchInput = document.getElementById("search");
 const opportunityList = document.getElementById("opportunity-list");
+const categoryFilter = document.getElementById("category-filter");
+const fundingFilter = document.getElementById("funding-filter");
+const ageFilter = document.getElementById("age-filter");
+const statusFilter = document.getElementById("status-filter");
+const resetButton = document.getElementById("reset-filters");
+const resultCount = document.getElementById("result-count");
 
 let opportunities = [];
 
-// Read CSV data, including descriptions with commas.
 function parseCSV(text) {
     const rows = [];
-    let row = [];
-    let field = "";
-    let quoted = false;
+    let row = [], field = "", quoted = false;
 
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
@@ -44,13 +47,27 @@ function parseCSV(text) {
     return rows;
 }
 
-// Create opportunity cards.
+function populateFilter(select, key) {
+    const values = [...new Set(
+        opportunities.map(item => item[key]).filter(Boolean)
+    )].sort();
+
+    values.forEach(value => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+    });
+}
+
 function displayOpportunities(items) {
     opportunityList.replaceChildren();
 
+    resultCount.textContent =
+        `Showing ${items.length} of ${opportunities.length} opportunities`;
+
     if (items.length === 0) {
-        opportunityList.textContent =
-            "No matching opportunities found.";
+        opportunityList.textContent = "No matching opportunities found.";
         return;
     }
 
@@ -64,13 +81,15 @@ function displayOpportunities(items) {
 
         const details = [
             item.category,
-            "Age: " + item.age,
+            "Age: " + item.minAge + " - " + item.maxAge,
             "Pakistani eligibility: " + item.eligibility,
             "Funding: " + item.funding,
             "Application fee: " + item.fee,
             "Deadline: " + item.deadline,
+            "Subject: " + item.subject,
             "Status: " + item.status,
-            item.description
+            item.description,
+            "Last verified: " + item.verified
         ];
 
         details.forEach(detail => {
@@ -92,7 +111,41 @@ function displayOpportunities(items) {
     });
 }
 
-// Load opportunities from Google Sheets.
+function filterOpportunities() {
+    const term = searchInput.value.toLowerCase().trim();
+    const category = categoryFilter.value;
+    const funding = fundingFilter.value;
+    const age = ageFilter.value;
+    const status = statusFilter.value;
+
+    const filtered = opportunities.filter(item => {
+        const matchesSearch = Object.values(item)
+            .join(" ").toLowerCase().includes(term);
+
+        const matchesCategory = !category || item.category === category;
+        const matchesFunding = !funding || item.funding === funding;
+        const matchesStatus = !status || item.status === status;
+
+        const minKnown = /^\d+$/.test(item.minAge);
+        const maxKnown = /^\d+$/.test(item.maxAge);
+        const noMinimum = /^no minimum$/i.test(item.minAge);
+        const noMaximum = /^no maximum$/i.test(item.maxAge);
+
+        const matchesAge = !age || (
+            (noMinimum || (minKnown && Number(age) >= Number(item.minAge))) &&
+            (noMaximum || (maxKnown && Number(age) <= Number(item.maxAge)))
+        );
+
+        return matchesSearch &&
+            matchesCategory &&
+            matchesFunding &&
+            matchesAge &&
+            matchesStatus;
+    });
+
+    displayOpportunities(filtered);
+}
+
 async function loadOpportunities() {
     opportunityList.textContent = "Loading opportunities...";
 
@@ -110,18 +163,23 @@ async function loadOpportunities() {
             .filter(row => row[0]?.trim())
             .map(row => ({
                 name: row[0] || "",
-                category: row[1] || "",
-                age: (row[2] || "Not specified") +
-                     " - " + (row[3] || "Not specified"),
+                category: row[1]?.trim() || "Not specified",
+                minAge: row[2]?.trim() || "Not specified",
+                maxAge: row[3]?.trim() || "Not specified",
                 eligibility: row[4] || "Check official rules",
-                funding: row[5] || "Not specified",
+                funding: row[5]?.trim() || "Not specified",
                 fee: row[6] || "Not specified",
                 deadline: row[7] || "Check official website",
-                subject: row[8] || "",
+                subject: row[8] || "Not specified",
                 link: row[9] || "",
                 description: row[10] || "",
-                status: row[11] || "Check official website"
+                status: row[11]?.trim() || "Check official website",
+                verified: row[12] || "Pending verification"
             }));
+
+        populateFilter(categoryFilter, "category");
+        populateFilter(fundingFilter, "funding");
+        populateFilter(statusFilter, "status");
 
         filterOpportunities();
 
@@ -132,18 +190,19 @@ async function loadOpportunities() {
     }
 }
 
-// Search functionality.
-function filterOpportunities() {
-    const term = searchInput.value.toLowerCase().trim();
-
-    const filtered = opportunities.filter(item =>
-        Object.values(item).join(" ")
-            .toLowerCase().includes(term)
-    );
-
-    displayOpportunities(filtered);
-}
-
 searchInput.addEventListener("input", filterOpportunities);
+categoryFilter.addEventListener("change", filterOpportunities);
+fundingFilter.addEventListener("change", filterOpportunities);
+ageFilter.addEventListener("change", filterOpportunities);
+statusFilter.addEventListener("change", filterOpportunities);
+
+resetButton.addEventListener("click", () => {
+    searchInput.value = "";
+    categoryFilter.value = "";
+    fundingFilter.value = "";
+    ageFilter.value = "";
+    statusFilter.value = "";
+    filterOpportunities();
+});
 
 loadOpportunities();
