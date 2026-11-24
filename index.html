@@ -31,6 +31,37 @@
         <input type="search" id="search"
                placeholder="Search opportunities...">
 
+<div id="filters" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:25px;">
+
+    <select id="category-filter" aria-label="Category">
+        <option value="">All Categories</option>
+    </select>
+
+    <select id="funding-filter" aria-label="Funding">
+        <option value="">All Funding Types</option>
+    </select>
+
+    <select id="age-filter" aria-label="Age">
+        <option value="">All Ages</option>
+        <option value="13">13 years</option>
+        <option value="14">14 years</option>
+        <option value="15">15 years</option>
+        <option value="16">16 years</option>
+        <option value="17">17 years</option>
+        <option value="18">18 years</option>
+        <option value="19">19 years</option>
+    </select>
+
+    <select id="status-filter" aria-label="Application status">
+        <option value="">All Application Statuses</option>
+    </select>
+
+    <button id="reset-filters">Reset Filters</button>
+
+</div>
+
+<p id="result-count"></p>
+
         <div id="opportunity-list">
             <article class="opportunity-card">
                 <h3>John Locke Essay Competition</h3>
