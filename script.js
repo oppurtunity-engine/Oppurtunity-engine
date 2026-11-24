@@ -240,8 +240,13 @@ function displayUniversities(items) {
         const title = document.createElement("h3");
         title.textContent = uni.name;
         card.appendChild(title);
+        
+            
+"World ranking: " + uni.ranking,
+"Ranking year: " + uni.rankingYear,
+"Ranking source: " + uni.rankingSource,
 
-        const details = [
+            const details = [
             "Country: " + uni.country,
             "City: " + uni.city,
             "University type: " + uni.type,
@@ -330,8 +335,19 @@ async function loadUniversities() {
                 platform: row[16] || "Not specified",
                 link: row[17] || "",
                 description: row[18] || "",
-                verified: row[19] || "Pending verification"
+                
+verified: row[19] || "Pending verification",
+ranking: row[20] || "Unranked",
+rankingYear: row[21] || "",
+rankingSource: row[22] || ""
+
             }));
+        
+    universities.sort((a, b) => {
+    const rankA = parseInt(a.ranking.replace(/^=/, ""), 10) || Infinity;
+    const rankB = parseInt(b.ranking.replace(/^=/, ""), 10) || Infinity;
+    return rankA - rankB;
+});
 
         const countries = [...new Set(
             universities.map(uni => uni.country)
