@@ -196,3 +196,83 @@ footer {
         width: 100%;
     }
 }
+
+#universities {
+    background: #f8fafc;
+    padding: 60px 20px;
+}
+
+#universities h2 {
+    color: #14283e;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+#university-search {
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#university-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+#university-filters select {
+    flex: 1;
+    min-width: 160px;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #14283e;
+    cursor: pointer;
+}
+
+#reset-university-filters {
+    background: #14283e;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#reset-university-filters:hover {
+    background: #16866b;
+}
+
+#university-count {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.university-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.university-card h3 {
+    color: #14283e;
+}
+
+.university-card a {
+    color: #16866b;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    #university-filters select,
+    #reset-university-filters {
+        width: 100%;
+    }
+}
